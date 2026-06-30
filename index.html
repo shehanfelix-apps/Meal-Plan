@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nutrition Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+:root {
+  --bg:#0D0D0D; --surface:#141414; --card:#1A1A1A; --card2:#202020;
+  --border:#282828; --border2:#323232;
+  --accent:#E8FF47; --accent-dark:#c8de30; --accent-bg:rgba(232,255,71,0.07); --accent-border:rgba(232,255,71,0.25);
+  --jen:#FF79C6; --jen-bg:rgba(255,121,198,0.08); --jen-border:rgba(255,121,198,0.3);
+  --shehan:#79DEFF; --shehan-bg:rgba(121,222,255,0.08); --shehan-border:rgba(121,222,255,0.3);
+  --text:#F0F0F0; --muted:#777; --muted2:#555;
+  --success:#3DEFA0; --success-bg:rgba(61,239,160,0.08); --success-border:rgba(61,239,160,0.3);
+  --warning:#FFB547;
+  --radius:14px; --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;font-size:15px;min-height:100vh;}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:19px;letter-spacing:0.03em;color:var(--accent);white-space:nowrap;}
+.logo span{color:var(--text);}
+.person-toggle{display:flex;background:var(--card);border:1px solid var(--border);border-radius:30px;padding:3px;gap:2px;flex-shrink:0;}
+.ptog{background:none;border:none;border-radius:20px;padding:5px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--muted);white-space:nowrap;}
+.ptog.active-jen{background:var(--jen-bg);color:var(--jen);border:1px solid var(--jen-border);}
+.ptog.active-shehan{background:var(--shehan-bg);color:var(--shehan);border:1px solid var(--shehan-border);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom,0px);}
+.nav-btn{flex:1;background:none;border:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;padding:10px 4px 11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;letter-spacing:0.05em;text-transform:uppercase;transition:color 0.15s;}
+.nav-btn.active{color:var(--accent);}
+.nav-icon{font-size:18px;line-height:1;}
+.main{padding:18px 16px 100px;max-width:520px;margin:0 auto;}
+.screen{display:none;}
+.screen.active{display:block;}
+.screen-title{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:900;letter-spacing:0.02em;margin-bottom:3px;}
+.screen-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.person-banner{border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.pb-jen{background:var(--jen-bg);border:1px solid var(--jen-border);}
+.pb-shehan{background:var(--shehan-bg);border:1px solid var(--shehan-border);}
+.pb-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;}
+.pb-jen .pb-name{color:var(--jen);}
+.pb-shehan .pb-name{color:var(--shehan);}
+.pb-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.pb-target{text-align:right;}
+.pb-kcal{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;line-height:1;}
+.pb-jen .pb-kcal{color:var(--jen);}
+.pb-shehan .pb-kcal{color:var(--shehan);}
+.pb-kcal-lbl{font-size:10px;color:var(--muted);}
+.week-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.wtab{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 4px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;text-align:center;transition:all 0.15s;}
+.wtab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.day-scroll{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px;}
+.day-scroll::-webkit-scrollbar{display:none;}
+.daytab{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;}
+.daytab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.daily-totals{border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;}
+.dt-jen{background:var(--jen-bg);border:1px solid var(--jen-border);}
+.dt-shehan{background:var(--shehan-bg);border:1px solid var(--shehan-border);}
+.dt-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.dt-jen .dt-label{color:var(--jen);}
+.dt-shehan .dt-label{color:var(--shehan);}
+.dt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.dt-cell{text-align:center;}
+.dt-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);line-height:1;}
+.dt-unit{font-size:10px;color:var(--muted);}
+.meal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px;margin-bottom:12px;}
+.meal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.meal-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.meal-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;line-height:1.1;}
+.macro-stack{display:flex;flex-direction:column;gap:3px;align-items:flex-end;flex-shrink:0;margin-left:10px;}
+.kcal-big{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;line-height:1;}
+.kcal-jen{color:var(--jen);}
+.kcal-shehan{color:var(--shehan);}
+.kcal-unit{font-size:10px;color:var(--muted);}
+.macro-pills{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.pill{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.pill-p{background:rgba(232,255,71,0.1);color:var(--accent);}
+.pill-c{background:rgba(61,239,160,0.1);color:var(--success);}
+.pill-f{background:rgba(255,181,71,0.1);color:var(--warning);}
+.ing-table{width:100%;border-collapse:collapse;}
+.ing-table th{font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted2);text-align:left;padding:0 0 6px 0;border-bottom:1px solid var(--border);}
+.ing-table th:last-child{text-align:right;}
+.ing-row td{padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top;}
+.ing-row:last-child td{border-bottom:none;}
+.ing-name{color:var(--text);}
+.ing-qty{color:var(--accent);font-weight:600;text-align:right;font-size:12px;white-space:nowrap;padding-left:10px;}
+.method-box{margin-top:12px;background:var(--card2);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--muted);line-height:1.6;border-left:2px solid var(--accent-border);}
+.method-label{font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.sunday-card{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px 16px;text-align:center;}
+.sunday-icon{font-size:36px;margin-bottom:10px;}
+.sunday-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--accent);margin-bottom:6px;}
+.sunday-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+.sunday-targets{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;}
+.st-cell{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center;}
+.st-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--accent);}
+.st-label{font-size:10px;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;margin-top:2px;}
+.person-section-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;margin:0 0 10px;}
+.jen-title{color:var(--jen);}
+.shehan-title{color:var(--shehan);}
+.macro-overview-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
+.mo-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 12px;}
+.mo-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.mo-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;line-height:1;}
+.mo-val-jen{color:var(--jen);}
+.mo-val-shehan{color:var(--shehan);}
+.mo-unit{font-size:12px;color:var(--muted);}
+.mo-sub{font-size:11px;color:var(--muted2);margin-top:3px;}
+.rules-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+.rules-title{font-size:13px;font-weight:600;color:var(--accent);margin-bottom:10px;}
+.rule-row{display:flex;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);}
+.rule-row:last-child{border-bottom:none;}
+.rule-dot{color:var(--accent);flex-shrink:0;margin-top:1px;}
+.divider{height:1px;background:var(--border);margin:24px 0;}
+.ws-row{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;}
+.ws-week{font-weight:600;font-size:14px;margin-bottom:4px;}
+.ws-meals{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.ws-macros-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ws-person-block{background:var(--card2);border-radius:6px;padding:8px 10px;}
+.ws-person-lbl{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:3px;}
+.ws-person-lbl.jen-lbl{color:var(--jen);}
+.ws-person-lbl.shehan-lbl{color:var(--shehan);}
+.ws-person-vals{font-size:12px;color:var(--muted);}
+/* SHOPPING */
+.shop-week-tabs{display:flex;gap:6px;margin-bottom:18px;}
+.shop-wtab{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 4px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;text-align:center;transition:all 0.15s;}
+.shop-wtab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.shop-progress-bar-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;}
+.shop-progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.shop-progress-label{font-size:12px;color:var(--muted);}
+.shop-progress-count{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--accent);}
+.shop-progress-track{height:6px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.shop-progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s ease;}
+.shop-clear-btn{background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 14px;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.shop-clear-btn:active{border-color:var(--accent);color:var(--accent);}
+.shop-category{margin-bottom:20px;}
+.shop-category-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.shop-category-icon{font-size:16px;}
+.shop-category-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+.shop-category-count{font-size:11px;color:var(--muted2);margin-left:auto;}
+.shop-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:all 0.15s;user-select:none;}
+.shop-item:active{opacity:0.7;}
+.shop-item.ticked{background:var(--card2);border-color:var(--border);}
+.shop-checkbox{width:20px;height:20px;border-radius:5px;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.shop-item.ticked .shop-checkbox{background:var(--accent);border-color:var(--accent);}
+.shop-check-icon{display:none;font-size:11px;color:#000;font-weight:900;}
+.shop-item.ticked .shop-check-icon{display:block;}
+.shop-item-name{flex:1;font-size:13px;font-weight:500;transition:all 0.15s;}
+.shop-item.ticked .shop-item-name{color:var(--muted2);text-decoration:line-through;}
+.shop-item-qty{font-size:12px;color:var(--accent);font-weight:600;text-align:right;white-space:nowrap;transition:all 0.15s;}
+.shop-item.ticked .shop-item-qty{color:var(--muted2);}
+.shop-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div class="logo">OUR<span> NUTRITION</span></div>
+  <div class="person-toggle">
+    <button class="ptog active-jen" id="togJen" onclick="setPerson('jen')">Jen</button>
+    <button class="ptog" id="togShehan" onclick="setPerson('shehan')">Shehan</button>
+  </div>
+</div>
+<div class="main">
+  <div class="screen active" id="screen-plan">
+    <div class="screen-title">MEAL PLAN</div>
+    <div class="screen-sub">3-week rotation · tap a day to see meals</div>
+    <div id="personBanner"></div>
+    <div class="week-tabs">
+      <button class="wtab active" onclick="showWeek(1,this)">Week A</button>
+      <button class="wtab" onclick="showWeek(2,this)">Week B</button>
+      <button class="wtab" onclick="showWeek(3,this)">Week C</button>
+    </div>
+    <div class="day-scroll" id="dayScroll"></div>
+    <div id="dayContent"></div>
+  </div>
+  <div class="screen" id="screen-macros">
+    <div class="screen-title">MACROS</div>
+    <div class="screen-sub">Daily targets per person</div>
+    <div id="macrosContent"></div>
+  </div>
+  <div class="screen" id="screen-shop">
+    <div class="screen-title">SHOPPING LIST</div>
+    <div class="screen-sub">Mon–Sat · Jen + Shehan combined</div>
+    <div class="shop-week-tabs">
+      <button class="shop-wtab active" id="shopTabA" onclick="showShopWeek(1,this)">Week A</button>
+      <button class="shop-wtab" id="shopTabB" onclick="showShopWeek(2,this)">Week B</button>
+      <button class="shop-wtab" id="shopTabC" onclick="showShopWeek(3,this)">Week C</button>
+    </div>
+    <div class="shop-progress-bar-wrap">
+      <div class="shop-progress-header">
+        <span class="shop-progress-label">Items collected</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="shop-clear-btn" onclick="clearShopWeek()">Clear all</button>
+          <span class="shop-progress-count" id="shopProgressCount">0 / 0</span>
+        </div>
+      </div>
+      <div class="shop-progress-track"><div class="shop-progress-fill" id="shopProgressFill" style="width:0%"></div></div>
+    </div>
+    <div id="shopContent"></div>
+  </div>
+</div>
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-plan" onclick="showScreen('plan')"><div class="nav-icon">🍽️</div>Plan</button>
+  <button class="nav-btn" id="nav-macros" onclick="showScreen('macros')"><div class="nav-icon">📊</div>Macros</button>
+  <button class="nav-btn" id="nav-shop" onclick="showScreen('shop')"><div class="nav-icon">🛒</div>Shop</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// MACROS — per person, per meal, train vs rest
+// ═══════════════════════════════════════════════════════════════
+const MACROS = {
+  jen: {
+    // Jen uses almond milk (120ml oats / 300ml shake). Protein powder increased to 40g to compensate.
+    overnightOats: {
+      train: {kcal:460, p:43, c:52, f:10},
+      rest:  {kcal:460, p:43, c:52, f:10}
+    },
+    englishMuffin: {
+      train: {kcal:490, p:40, c:40, f:18},
+      rest:  {kcal:490, p:40, c:40, f:18}
+    },
+    shake: {
+      train: {kcal:245, p:35, c:16, f:5},   // almond milk + banana
+      rest:  {kcal:200, p:34, c:5,  f:5}    // almond milk, no banana
+    },
+    sushiBowl:        {train:{kcal:510,p:46,c:52,f:12}, rest:{kcal:510,p:46,c:52,f:12}},
+    chickenWrap:      {train:{kcal:490,p:44,c:42,f:14}, rest:{kcal:490,p:44,c:42,f:14}},
+    phillyCheesePasta:{train:{kcal:530,p:46,c:52,f:14}, rest:{kcal:530,p:46,c:52,f:14}},
+    chickenHSP:       {train:{kcal:560,p:52,c:42,f:18}, rest:{kcal:560,p:52,c:42,f:18}},
+    sweetPotatoBowl:  {train:{kcal:545,p:48,c:44,f:16}, rest:{kcal:545,p:48,c:44,f:16}},
+    padSeeEw:         {train:{kcal:560,p:46,c:60,f:12}, rest:{kcal:560,p:46,c:60,f:12}},
+    beefBurger:       {train:{kcal:570,p:46,c:50,f:18}, rest:{kcal:570,p:46,c:50,f:18}},
+    pizza:            {train:{kcal:545,p:50,c:46,f:16}, rest:{kcal:545,p:50,c:46,f:16}},
+    kimchiRice:       {train:{kcal:530,p:48,c:50,f:14}, rest:{kcal:530,p:48,c:50,f:14}},
+  },
+  shehan: {
+    overnightOats:    {train:{kcal:580,p:52,c:68,f:11}, rest:{kcal:480,p:50,c:52,f:10}},
+    englishMuffin:    {train:{kcal:560,p:55,c:42,f:16}, rest:{kcal:490,p:52,c:34,f:15}},
+    shake:            {train:{kcal:180,p:38,c:7, f:3},  rest:{kcal:180,p:38,c:7, f:3}},
+    sushiBowl:        {train:{kcal:680,p:52,c:78,f:14}, rest:{kcal:560,p:50,c:56,f:13}},
+    chickenWrap:      {train:{kcal:700,p:58,c:62,f:18}, rest:{kcal:600,p:56,c:44,f:17}},
+    phillyCheesePasta:{train:{kcal:740,p:60,c:74,f:20}, rest:{kcal:610,p:58,c:52,f:18}},
+    chickenHSP:       {train:{kcal:780,p:72,c:62,f:22}, rest:{kcal:650,p:70,c:42,f:20}},
+    sweetPotatoBowl:  {train:{kcal:750,p:68,c:64,f:20}, rest:{kcal:620,p:66,c:44,f:18}},
+    padSeeEw:         {train:{kcal:760,p:62,c:78,f:16}, rest:{kcal:630,p:60,c:58,f:15}},
+    beefBurger:       {train:{kcal:790,p:65,c:68,f:26}, rest:{kcal:650,p:63,c:48,f:23}},
+    pizza:            {train:{kcal:760,p:68,c:72,f:20}, rest:{kcal:630,p:64,c:52,f:19}},
+    kimchiRice:       {train:{kcal:740,p:60,c:74,f:18}, rest:{kcal:610,p:58,c:54,f:16}},
+  }
+};
+
+const SUNDAY_TARGETS = {
+  jen:    {train:{kcal:1950,p:155,c:200,f:65}, rest:{kcal:1750,p:145,c:160,f:60}},
+  shehan: {train:{kcal:2300,p:230,c:220,f:50}, rest:{kcal:2000,p:210,c:180,f:45}}
+};
+
+// ═══════════════════════════════════════════════════════════════
+// MEAL DATA — per-person ingredients with train/rest quantities
+// Each meal has: label, name, method, ingredients keyed by person+day type
+// ingredients[person][train|rest] = [{name, qty, cat}]
+// ═══════════════════════════════════════════════════════════════
+
+const MEALS = {
+  overnightOats: {
+    label:'Breakfast', name:'Overnight Oats',
+    method:'Mix oats, milk, yoghurt, protein powder and chia in a jar. Refrigerate overnight. Top with berries and honey in the morning. Make 2–3 jars at once.',
+    ingredients: {
+      jen: {
+        // Same train/rest — Jen's oats quantities don't change day type
+        train: [
+          {name:'Rolled oats',              qty:'80g',           cat:'other'},
+          {name:'Unsweetened almond milk',  qty:'120ml',         cat:'other'},
+          {name:'Greek yoghurt (full fat)', qty:'100g',          cat:'dairy'},
+          {name:'Chia seeds',               qty:'10g',           cat:'other'},
+          {name:'Mixed frozen berries',     qty:'80g',           cat:'other'},
+          {name:'Honey',                    qty:'10g',           cat:'other'},
+          {name:'Vanilla protein powder',   qty:'40g (1.5 scoops)', cat:'other'},
+        ],
+        rest: [
+          {name:'Rolled oats',              qty:'80g',           cat:'other'},
+          {name:'Unsweetened almond milk',  qty:'120ml',         cat:'other'},
+          {name:'Greek yoghurt (full fat)', qty:'100g',          cat:'dairy'},
+          {name:'Chia seeds',               qty:'10g',           cat:'other'},
+          {name:'Mixed frozen berries',     qty:'80g',           cat:'other'},
+          {name:'Honey',                    qty:'10g',           cat:'other'},
+          {name:'Vanilla protein powder',   qty:'40g (1.5 scoops)', cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Rolled oats',              qty:'80g',           cat:'other'},
+          {name:'Full cream milk',          qty:'120ml',         cat:'dairy'},
+          {name:'Greek yoghurt (full fat)', qty:'100g',          cat:'dairy'},
+          {name:'Chia seeds',               qty:'10g',           cat:'other'},
+          {name:'Mixed frozen berries',     qty:'80g',           cat:'other'},
+          {name:'Honey',                    qty:'15g',           cat:'other'},
+          {name:'Vanilla protein powder',   qty:'40g (1.5 scoops)', cat:'other'},
+        ],
+        rest: [
+          {name:'Rolled oats',              qty:'55g',           cat:'other'},
+          {name:'Full cream milk',          qty:'100ml',         cat:'dairy'},
+          {name:'Greek yoghurt (full fat)', qty:'100g',          cat:'dairy'},
+          {name:'Chia seeds',               qty:'10g',           cat:'other'},
+          {name:'Mixed frozen berries',     qty:'60g',           cat:'other'},
+          {name:'Honey',                    qty:'10g',           cat:'other'},
+          {name:'Vanilla protein powder',   qty:'40g (1.5 scoops)', cat:'other'},
+        ]
+      }
+    }
+  },
+
+  englishMuffin: {
+    label:'Breakfast', name:'Egg & Sausage Muffin',
+    method:'Pan-fry sausage 3–4 min each side. Cook egg in same pan. Toast muffin. Stack: muffin base → spinach → egg → sausage → cheese → sauce. Meal prep: cook egg patties and sausage in bulk, reheat 45 sec.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Wholegrain English muffin',     qty:'1 muffin (60g)', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',        cat:'dairy'},
+          {name:'Pork sausage (thin breakfast)', qty:'80g',            cat:'meat'},
+          {name:'Cheddar cheese, sliced',        qty:'20g',            cat:'dairy'},
+          {name:'Tomato sauce or BBQ sauce',     qty:'15g',            cat:'other'},
+          {name:'Baby spinach',                  qty:'15g',            cat:'veg'},
+        ],
+        rest: [
+          {name:'Wholegrain English muffin',     qty:'1 muffin (60g)', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',        cat:'dairy'},
+          {name:'Pork sausage (thin breakfast)', qty:'80g',            cat:'meat'},
+          {name:'Cheddar cheese, sliced',        qty:'20g',            cat:'dairy'},
+          {name:'Tomato sauce or BBQ sauce',     qty:'15g',            cat:'other'},
+          {name:'Baby spinach',                  qty:'15g',            cat:'veg'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Wholegrain English muffin',     qty:'1 muffin (60g)', cat:'other'},
+          {name:'Eggs',                          qty:'3 whole',        cat:'dairy'},
+          {name:'Pork sausage (thin breakfast)', qty:'100g',           cat:'meat'},
+          {name:'Cheddar cheese, sliced',        qty:'25g',            cat:'dairy'},
+          {name:'Tomato sauce or BBQ sauce',     qty:'15g',            cat:'other'},
+          {name:'Baby spinach',                  qty:'20g',            cat:'veg'},
+        ],
+        rest: [
+          {name:'Wholegrain English muffin',     qty:'1 muffin (60g)', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',        cat:'dairy'},
+          {name:'Pork sausage (thin breakfast)', qty:'100g',           cat:'meat'},
+          {name:'Cheddar cheese, sliced',        qty:'20g',            cat:'dairy'},
+          {name:'Tomato sauce or BBQ sauce',     qty:'15g',            cat:'other'},
+          {name:'Baby spinach',                  qty:'20g',            cat:'veg'},
+        ]
+      }
+    }
+  },
+
+  shake: {
+    label:'Protein Shake', name:'Whey Protein Shake',
+    method:'Shake or blend. Take within 60 min post-workout on training days. On rest days take as afternoon snack.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Whey protein powder (vanilla or choc)', qty:'45g (1.5 scoops)', cat:'other'},
+          {name:'Unsweetened almond milk',               qty:'300ml',            cat:'other'},
+          {name:'Small banana',                          qty:'½ banana (~60g)',  cat:'veg'},
+        ],
+        rest: [
+          {name:'Whey protein powder (vanilla or choc)', qty:'45g (1.5 scoops)', cat:'other'},
+          {name:'Unsweetened almond milk',               qty:'300ml',            cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Whey protein powder (vanilla or choc)', qty:'45g (1.5 scoops)', cat:'other'},
+          {name:'Full cream milk',                       qty:'300ml',            cat:'dairy'},
+          {name:'Small banana',                          qty:'½ banana (~60g)',  cat:'veg'},
+        ],
+        rest: [
+          {name:'Whey protein powder (vanilla or choc)', qty:'45g (1.5 scoops)', cat:'other'},
+          {name:'Full cream milk',                       qty:'300ml',            cat:'dairy'},
+        ]
+      }
+    }
+  },
+
+  sushiBowl: {
+    label:'Lunch', name:'Sushi Bowl',
+    method:'Cook and season rice with a splash of rice vinegar and salt. Drain tuna/salmon. Assemble bowl: rice base, tuna, kimchi, corn, cucumber. Drizzle kewpie and soy.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Medium grain rice, cooked',              qty:'150g',              cat:'other'},
+          {name:'Canned tuna or salmon in springwater',   qty:'185g (1 large can)',cat:'meat'},
+          {name:'Kimchi',                                 qty:'60g',               cat:'other'},
+          {name:'Corn kernels',                           qty:'40g',               cat:'veg'},
+          {name:'Cucumber, sliced',                       qty:'80g',               cat:'veg'},
+          {name:'Spicy Kewpie mayo',                      qty:'20g',               cat:'other'},
+          {name:'Soy sauce',                              qty:'10ml',              cat:'other'},
+          {name:'Sesame seeds',                           qty:'5g',                cat:'other'},
+        ],
+        rest: [
+          {name:'Medium grain rice, cooked',              qty:'150g',              cat:'other'},
+          {name:'Canned tuna or salmon in springwater',   qty:'185g (1 large can)',cat:'meat'},
+          {name:'Kimchi',                                 qty:'60g',               cat:'other'},
+          {name:'Corn kernels',                           qty:'40g',               cat:'veg'},
+          {name:'Cucumber, sliced',                       qty:'80g',               cat:'veg'},
+          {name:'Spicy Kewpie mayo',                      qty:'20g',               cat:'other'},
+          {name:'Soy sauce',                              qty:'10ml',              cat:'other'},
+          {name:'Sesame seeds',                           qty:'5g',                cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Medium grain rice, cooked',              qty:'250g',              cat:'other'},
+          {name:'Canned tuna or salmon in springwater',   qty:'185g (1 large can)',cat:'meat'},
+          {name:'Kimchi',                                 qty:'80g',               cat:'other'},
+          {name:'Corn kernels',                           qty:'50g',               cat:'veg'},
+          {name:'Cucumber, sliced',                       qty:'80g',               cat:'veg'},
+          {name:'Spicy Kewpie mayo',                      qty:'25g',               cat:'other'},
+          {name:'Soy sauce',                              qty:'10ml',              cat:'other'},
+          {name:'Sesame seeds',                           qty:'5g',                cat:'other'},
+        ],
+        rest: [
+          {name:'Medium grain rice, cooked',              qty:'150g',              cat:'other'},
+          {name:'Canned tuna or salmon in springwater',   qty:'185g (1 large can)',cat:'meat'},
+          {name:'Kimchi',                                 qty:'60g',               cat:'other'},
+          {name:'Corn kernels',                           qty:'40g',               cat:'veg'},
+          {name:'Cucumber, sliced',                       qty:'80g',               cat:'veg'},
+          {name:'Spicy Kewpie mayo',                      qty:'20g',               cat:'other'},
+          {name:'Soy sauce',                              qty:'10ml',              cat:'other'},
+          {name:'Sesame seeds',                           qty:'5g',                cat:'other'},
+        ]
+      }
+    }
+  },
+
+  chickenWrap: {
+    label:'Lunch', name:'Chicken Caesar Wrap',
+    method:'Grill chicken breast with salt and pepper. Slice. Layer onto wrap with lettuce, tomato, cheese and dressing. Roll tightly. Meal prep: grill 600–700g chicken Sunday, slice and store.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Wholemeal wrap (large)',         qty:'65g (1 wrap)',  cat:'other'},
+          {name:'Chicken breast, grilled',        qty:'180g cooked',  cat:'meat'},
+          {name:'Cos lettuce, shredded',          qty:'60g',          cat:'veg'},
+          {name:'Cherry tomatoes, halved',        qty:'80g',          cat:'veg'},
+          {name:'Cheddar cheese, shredded',       qty:'20g',          cat:'dairy'},
+          {name:'Caesar dressing',                qty:'25g',          cat:'other'},
+        ],
+        rest: [
+          {name:'Wholemeal wrap (large)',         qty:'65g (1 wrap)',  cat:'other'},
+          {name:'Chicken breast, grilled',        qty:'180g cooked',  cat:'meat'},
+          {name:'Cos lettuce, shredded',          qty:'60g',          cat:'veg'},
+          {name:'Cherry tomatoes, halved',        qty:'80g',          cat:'veg'},
+          {name:'Cheddar cheese, shredded',       qty:'20g',          cat:'dairy'},
+          {name:'Caesar dressing',                qty:'25g',          cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Wholemeal wrap (large)',         qty:'65g (1 wrap)',  cat:'other'},
+          {name:'Chicken breast, grilled',        qty:'250g cooked',  cat:'meat'},
+          {name:'Cos lettuce, shredded',          qty:'60g',          cat:'veg'},
+          {name:'Cherry tomatoes, halved',        qty:'80g',          cat:'veg'},
+          {name:'Cheddar cheese, shredded',       qty:'25g',          cat:'dairy'},
+          {name:'Caesar dressing',                qty:'30g',          cat:'other'},
+        ],
+        rest: [
+          {name:'Wholemeal wrap (large)',         qty:'65g (1 wrap)',  cat:'other'},
+          {name:'Chicken breast, grilled',        qty:'220g cooked',  cat:'meat'},
+          {name:'Cos lettuce, shredded',          qty:'60g',          cat:'veg'},
+          {name:'Cherry tomatoes, halved',        qty:'80g',          cat:'veg'},
+          {name:'Cheddar cheese, shredded',       qty:'20g',          cat:'dairy'},
+          {name:'Caesar dressing',                qty:'25g',          cat:'other'},
+        ]
+      }
+    }
+  },
+
+  phillyCheesePasta: {
+    label:'Lunch', name:'Philly Cheese Pasta',
+    method:'Cook pasta per packet. Brown mince, add onion and capsicum, cook 5 min. Add stock and worcestershire. Stir in cream cheese until melted. Combine with pasta, top with cheddar. Batch cook Sunday — stores 4 days.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'High-protein pasta (dry)',  qty:'80g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)', qty:'160g',  cat:'meat'},
+          {name:'Capsicum, diced',          qty:'100g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'80g',   cat:'veg'},
+          {name:'Beef stock',               qty:'60ml',  cat:'other'},
+          {name:'Worcestershire sauce',     qty:'10ml',  cat:'other'},
+          {name:'Cream cheese (light)',     qty:'40g',   cat:'dairy'},
+          {name:'Cheddar cheese, shredded',qty:'25g',   cat:'dairy'},
+          {name:'Salt, pepper, garlic powder', qty:'to taste', cat:'other'},
+        ],
+        rest: [
+          {name:'High-protein pasta (dry)',  qty:'80g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)', qty:'160g',  cat:'meat'},
+          {name:'Capsicum, diced',          qty:'100g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'80g',   cat:'veg'},
+          {name:'Beef stock',               qty:'60ml',  cat:'other'},
+          {name:'Worcestershire sauce',     qty:'10ml',  cat:'other'},
+          {name:'Cream cheese (light)',     qty:'40g',   cat:'dairy'},
+          {name:'Cheddar cheese, shredded',qty:'25g',   cat:'dairy'},
+          {name:'Salt, pepper, garlic powder', qty:'to taste', cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'High-protein pasta (dry)',  qty:'110g',  cat:'other'},
+          {name:'Beef mince (lean 5% fat)', qty:'200g',  cat:'meat'},
+          {name:'Capsicum, diced',          qty:'100g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'80g',   cat:'veg'},
+          {name:'Beef stock',               qty:'80ml',  cat:'other'},
+          {name:'Worcestershire sauce',     qty:'15ml',  cat:'other'},
+          {name:'Cream cheese (light)',     qty:'40g',   cat:'dairy'},
+          {name:'Cheddar cheese, shredded',qty:'30g',   cat:'dairy'},
+          {name:'Salt, pepper, garlic powder', qty:'to taste', cat:'other'},
+        ],
+        rest: [
+          {name:'High-protein pasta (dry)',  qty:'70g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)', qty:'200g',  cat:'meat'},
+          {name:'Capsicum, diced',          qty:'100g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'80g',   cat:'veg'},
+          {name:'Beef stock',               qty:'60ml',  cat:'other'},
+          {name:'Worcestershire sauce',     qty:'10ml',  cat:'other'},
+          {name:'Cream cheese (light)',     qty:'40g',   cat:'dairy'},
+          {name:'Cheddar cheese, shredded',qty:'25g',   cat:'dairy'},
+          {name:'Salt, pepper, garlic powder', qty:'to taste', cat:'other'},
+        ]
+      }
+    }
+  },
+
+  chickenHSP: {
+    label:'Dinner', name:'Chicken HSP',
+    method:'Toss diced potato in olive oil and salt, roast at 200°C for 30 min. Pan-grill chicken 4–5 min each side. Make garlic sauce: mix yoghurt, minced garlic, lemon juice, black pepper. Plate potato, layer chicken, tomato, onion, cheese. Drizzle all sauces.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Chicken breast',             qty:'200g', cat:'meat'},
+          {name:'White potato, diced',        qty:'200g', cat:'veg'},
+          {name:'Cheddar cheese, shredded',   qty:'25g',  cat:'dairy'},
+          {name:'Fresh tomato, diced',        qty:'100g', cat:'veg'},
+          {name:'Red onion, thinly sliced',   qty:'60g',  cat:'veg'},
+          {name:'Hot sauce',                  qty:'15ml', cat:'other'},
+          {name:'Greek yoghurt',              qty:'80g',  cat:'dairy'},
+          {name:'Garlic cloves, minced',      qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',                qty:'15ml', cat:'other'},
+          {name:'BBQ sauce',                  qty:'20g',  cat:'other'},
+        ],
+        rest: [
+          {name:'Chicken breast',             qty:'200g', cat:'meat'},
+          {name:'White potato, diced',        qty:'200g', cat:'veg'},
+          {name:'Cheddar cheese, shredded',   qty:'25g',  cat:'dairy'},
+          {name:'Fresh tomato, diced',        qty:'100g', cat:'veg'},
+          {name:'Red onion, thinly sliced',   qty:'60g',  cat:'veg'},
+          {name:'Hot sauce',                  qty:'15ml', cat:'other'},
+          {name:'Greek yoghurt',              qty:'80g',  cat:'dairy'},
+          {name:'Garlic cloves, minced',      qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',                qty:'15ml', cat:'other'},
+          {name:'BBQ sauce',                  qty:'20g',  cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Chicken breast',             qty:'280g', cat:'meat'},
+          {name:'White potato, diced',        qty:'200g', cat:'veg'},
+          {name:'Cheddar cheese, shredded',   qty:'30g',  cat:'dairy'},
+          {name:'Fresh tomato, diced',        qty:'100g', cat:'veg'},
+          {name:'Red onion, thinly sliced',   qty:'60g',  cat:'veg'},
+          {name:'Hot sauce',                  qty:'15ml', cat:'other'},
+          {name:'Greek yoghurt',              qty:'100g', cat:'dairy'},
+          {name:'Garlic cloves, minced',      qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',                qty:'15ml', cat:'other'},
+          {name:'BBQ sauce',                  qty:'20g',  cat:'other'},
+        ],
+        rest: [
+          {name:'Chicken breast',             qty:'280g', cat:'meat'},
+          {name:'White potato, diced',        qty:'130g', cat:'veg'},
+          {name:'Cheddar cheese, shredded',   qty:'25g',  cat:'dairy'},
+          {name:'Fresh tomato, diced',        qty:'100g', cat:'veg'},
+          {name:'Red onion, thinly sliced',   qty:'60g',  cat:'veg'},
+          {name:'Hot sauce',                  qty:'15ml', cat:'other'},
+          {name:'Greek yoghurt',              qty:'100g', cat:'dairy'},
+          {name:'Garlic cloves, minced',      qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',                qty:'15ml', cat:'other'},
+          {name:'BBQ sauce',                  qty:'20g',  cat:'other'},
+        ]
+      }
+    }
+  },
+
+  sweetPotatoBowl: {
+    label:'Dinner', name:'Sweet Potato Bowl',
+    method:'Toss sweet potato with olive oil, roast at 200°C for 25 min. Brown mince with garlic, onion, capsicum. Deglaze with balsamic. Make garlic sauce: mix yoghurt, garlic, lemon, pepper. Assemble: sweet potato → mince → cheese → garlic sauce.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Beef mince (lean 5% fat)', qty:'180g', cat:'meat'},
+          {name:'Sweet potato, diced',      qty:'200g', cat:'veg'},
+          {name:'Capsicum, diced',          qty:'80g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'60g',  cat:'veg'},
+          {name:'Cheddar cheese, shredded', qty:'25g',  cat:'dairy'},
+          {name:'Greek yoghurt',            qty:'60g',  cat:'dairy'},
+          {name:'Garlic cloves, minced',    qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',              qty:'10ml', cat:'other'},
+          {name:'Balsamic vinegar',         qty:'15ml', cat:'other'},
+          {name:'Olive oil',                qty:'10ml', cat:'other'},
+        ],
+        rest: [
+          {name:'Beef mince (lean 5% fat)', qty:'180g', cat:'meat'},
+          {name:'Sweet potato, diced',      qty:'200g', cat:'veg'},
+          {name:'Capsicum, diced',          qty:'80g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'60g',  cat:'veg'},
+          {name:'Cheddar cheese, shredded', qty:'25g',  cat:'dairy'},
+          {name:'Greek yoghurt',            qty:'60g',  cat:'dairy'},
+          {name:'Garlic cloves, minced',    qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',              qty:'10ml', cat:'other'},
+          {name:'Balsamic vinegar',         qty:'15ml', cat:'other'},
+          {name:'Olive oil',                qty:'10ml', cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Beef mince (lean 5% fat)', qty:'250g', cat:'meat'},
+          {name:'Sweet potato, diced',      qty:'200g', cat:'veg'},
+          {name:'Capsicum, diced',          qty:'80g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'60g',  cat:'veg'},
+          {name:'Cheddar cheese, shredded', qty:'30g',  cat:'dairy'},
+          {name:'Greek yoghurt',            qty:'80g',  cat:'dairy'},
+          {name:'Garlic cloves, minced',    qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',              qty:'10ml', cat:'other'},
+          {name:'Balsamic vinegar',         qty:'15ml', cat:'other'},
+          {name:'Olive oil',                qty:'10ml', cat:'other'},
+        ],
+        rest: [
+          {name:'Beef mince (lean 5% fat)', qty:'250g', cat:'meat'},
+          {name:'Sweet potato, diced',      qty:'130g', cat:'veg'},
+          {name:'Capsicum, diced',          qty:'80g',  cat:'veg'},
+          {name:'Brown onion, diced',       qty:'60g',  cat:'veg'},
+          {name:'Cheddar cheese, shredded', qty:'25g',  cat:'dairy'},
+          {name:'Greek yoghurt',            qty:'80g',  cat:'dairy'},
+          {name:'Garlic cloves, minced',    qty:'2 cloves', cat:'veg'},
+          {name:'Lemon juice',              qty:'10ml', cat:'other'},
+          {name:'Balsamic vinegar',         qty:'15ml', cat:'other'},
+          {name:'Olive oil',                qty:'10ml', cat:'other'},
+        ]
+      }
+    }
+  },
+
+  padSeeEw: {
+    label:'Dinner', name:'Pad See Ew',
+    method:'Mix all sauces together. High heat wok, fry garlic 30 sec, add chicken and cook through. Push aside, scramble eggs in pan. Add noodles and sauce, toss hard 2–3 min. Add broccoli, toss 1 min. Serve immediately.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Chicken breast, thinly sliced', qty:'180g',              cat:'meat'},
+          {name:'Flat rice noodles',             qty:'120g dry / 200g fresh', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',           cat:'dairy'},
+          {name:'Chinese broccoli (gai lan)',    qty:'120g',              cat:'veg'},
+          {name:'Garlic cloves, minced',         qty:'3 cloves',          cat:'veg'},
+          {name:'Soy sauce',                     qty:'20ml',              cat:'other'},
+          {name:'Dark soy sauce',                qty:'15ml',              cat:'other'},
+          {name:'Fish sauce',                    qty:'10ml',              cat:'other'},
+          {name:'Oyster sauce',                  qty:'20ml',              cat:'other'},
+          {name:'Brown sugar',                   qty:'8g',                cat:'other'},
+          {name:'Neutral oil',                   qty:'15ml',              cat:'other'},
+        ],
+        rest: [
+          {name:'Chicken breast, thinly sliced', qty:'180g',              cat:'meat'},
+          {name:'Flat rice noodles',             qty:'120g dry / 200g fresh', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',           cat:'dairy'},
+          {name:'Chinese broccoli (gai lan)',    qty:'120g',              cat:'veg'},
+          {name:'Garlic cloves, minced',         qty:'3 cloves',          cat:'veg'},
+          {name:'Soy sauce',                     qty:'20ml',              cat:'other'},
+          {name:'Dark soy sauce',                qty:'15ml',              cat:'other'},
+          {name:'Fish sauce',                    qty:'10ml',              cat:'other'},
+          {name:'Oyster sauce',                  qty:'20ml',              cat:'other'},
+          {name:'Brown sugar',                   qty:'8g',                cat:'other'},
+          {name:'Neutral oil',                   qty:'15ml',              cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Chicken breast, thinly sliced', qty:'250g',              cat:'meat'},
+          {name:'Flat rice noodles',             qty:'160g dry / 280g fresh', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',           cat:'dairy'},
+          {name:'Chinese broccoli (gai lan)',    qty:'120g',              cat:'veg'},
+          {name:'Garlic cloves, minced',         qty:'3 cloves',          cat:'veg'},
+          {name:'Soy sauce',                     qty:'20ml',              cat:'other'},
+          {name:'Dark soy sauce',                qty:'15ml',              cat:'other'},
+          {name:'Fish sauce',                    qty:'10ml',              cat:'other'},
+          {name:'Oyster sauce',                  qty:'20ml',              cat:'other'},
+          {name:'Brown sugar',                   qty:'8g',                cat:'other'},
+          {name:'Neutral oil',                   qty:'15ml',              cat:'other'},
+        ],
+        rest: [
+          {name:'Chicken breast, thinly sliced', qty:'250g',              cat:'meat'},
+          {name:'Flat rice noodles',             qty:'100g dry / 170g fresh', cat:'other'},
+          {name:'Eggs',                          qty:'2 whole',           cat:'dairy'},
+          {name:'Chinese broccoli (gai lan)',    qty:'120g',              cat:'veg'},
+          {name:'Garlic cloves, minced',         qty:'3 cloves',          cat:'veg'},
+          {name:'Soy sauce',                     qty:'20ml',              cat:'other'},
+          {name:'Dark soy sauce',                qty:'15ml',              cat:'other'},
+          {name:'Fish sauce',                    qty:'10ml',              cat:'other'},
+          {name:'Oyster sauce',                  qty:'20ml',              cat:'other'},
+          {name:'Brown sugar',                   qty:'8g',                cat:'other'},
+          {name:'Neutral oil',                   qty:'15ml',              cat:'other'},
+        ]
+      }
+    }
+  },
+
+  beefBurger: {
+    label:'Dinner', name:'Beef Burger & Chips',
+    method:'Toss chips in oil and salt, air-fry or oven at 210°C for 25–30 min. Form mince into patty and season. Pan-fry 3–4 min each side on high heat. Melt cheese on top last minute. Toast bun cut-side down 30 sec. Build: bun → sauce → patty → cheese → pickles → onion.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Brioche burger bun',           qty:'70g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)',     qty:'180g',  cat:'meat'},
+          {name:'Cheddar cheese slice',         qty:'25g',   cat:'dairy'},
+          {name:'Pickles',                      qty:'20g',   cat:'other'},
+          {name:'Brown onion, caramelised',     qty:'60g',   cat:'veg'},
+          {name:'Burger sauce (Coles brand)',   qty:'20g',   cat:'other'},
+          {name:'White potato, cut to chips',   qty:'150g',  cat:'veg'},
+          {name:'Olive oil (for chips)',        qty:'8ml',   cat:'other'},
+          {name:'Salt, garlic powder',          qty:'to taste', cat:'other'},
+        ],
+        rest: [
+          {name:'Brioche burger bun',           qty:'70g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)',     qty:'180g',  cat:'meat'},
+          {name:'Cheddar cheese slice',         qty:'25g',   cat:'dairy'},
+          {name:'Pickles',                      qty:'20g',   cat:'other'},
+          {name:'Brown onion, caramelised',     qty:'60g',   cat:'veg'},
+          {name:'Burger sauce (Coles brand)',   qty:'20g',   cat:'other'},
+          {name:'White potato, cut to chips',   qty:'150g',  cat:'veg'},
+          {name:'Olive oil (for chips)',        qty:'8ml',   cat:'other'},
+          {name:'Salt, garlic powder',          qty:'to taste', cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Brioche burger bun',           qty:'70g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)',     qty:'250g',  cat:'meat'},
+          {name:'Cheddar cheese slice',         qty:'30g',   cat:'dairy'},
+          {name:'Pickles',                      qty:'20g',   cat:'other'},
+          {name:'Brown onion, caramelised',     qty:'60g',   cat:'veg'},
+          {name:'Burger sauce (Coles brand)',   qty:'20g',   cat:'other'},
+          {name:'White potato, cut to chips',   qty:'150g',  cat:'veg'},
+          {name:'Olive oil (for chips)',        qty:'8ml',   cat:'other'},
+          {name:'Salt, garlic powder',          qty:'to taste', cat:'other'},
+        ],
+        rest: [
+          {name:'Brioche burger bun',           qty:'70g',   cat:'other'},
+          {name:'Beef mince (lean 5% fat)',     qty:'250g',  cat:'meat'},
+          {name:'Cheddar cheese slice',         qty:'25g',   cat:'dairy'},
+          {name:'Pickles',                      qty:'20g',   cat:'other'},
+          {name:'Brown onion, caramelised',     qty:'60g',   cat:'veg'},
+          {name:'Burger sauce (Coles brand)',   qty:'20g',   cat:'other'},
+          {name:'White potato, cut to chips',   qty:'80g',   cat:'veg'},
+          {name:'Olive oil (for chips)',        qty:'8ml',   cat:'other'},
+          {name:'Salt, garlic powder',          qty:'to taste', cat:'other'},
+        ]
+      }
+    }
+  },
+
+  pizza: {
+    label:'Dinner', name:'Homemade Pita Pizza',
+    method:'Preheat oven to 220°C. Place pita on a tray. Spread crushed tomato, scatter spinach. Top with capsicum, onion, ham and chicken. Cover with cheese. Bake 10–12 min until cheese golden and bubbling.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Large pita flatbread',              qty:'80g',   cat:'other'},
+          {name:'Crushed tomatoes',                  qty:'80g',   cat:'other'},
+          {name:'Baby spinach',                      qty:'30g',   cat:'veg'},
+          {name:'Mozzarella + cheddar, shredded',   qty:'50g',   cat:'dairy'},
+          {name:'Capsicum, sliced',                  qty:'60g',   cat:'veg'},
+          {name:'Brown onion, sliced',               qty:'40g',   cat:'veg'},
+          {name:'Sliced ham',                        qty:'60g',   cat:'meat'},
+          {name:'Chicken breast, cooked and diced',  qty:'100g',  cat:'meat'},
+          {name:'Dried Italian herbs, garlic powder',qty:'to taste', cat:'other'},
+        ],
+        rest: [
+          {name:'Large pita flatbread',              qty:'80g',   cat:'other'},
+          {name:'Crushed tomatoes',                  qty:'80g',   cat:'other'},
+          {name:'Baby spinach',                      qty:'30g',   cat:'veg'},
+          {name:'Mozzarella + cheddar, shredded',   qty:'50g',   cat:'dairy'},
+          {name:'Capsicum, sliced',                  qty:'60g',   cat:'veg'},
+          {name:'Brown onion, sliced',               qty:'40g',   cat:'veg'},
+          {name:'Sliced ham',                        qty:'60g',   cat:'meat'},
+          {name:'Chicken breast, cooked and diced',  qty:'100g',  cat:'meat'},
+          {name:'Dried Italian herbs, garlic powder',qty:'to taste', cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Large pita flatbread',              qty:'80g',   cat:'other'},
+          {name:'Crushed tomatoes',                  qty:'80g',   cat:'other'},
+          {name:'Baby spinach',                      qty:'30g',   cat:'veg'},
+          {name:'Mozzarella + cheddar, shredded',   qty:'70g',   cat:'dairy'},
+          {name:'Capsicum, sliced',                  qty:'60g',   cat:'veg'},
+          {name:'Brown onion, sliced',               qty:'40g',   cat:'veg'},
+          {name:'Sliced ham',                        qty:'80g',   cat:'meat'},
+          {name:'Chicken breast, cooked and diced',  qty:'160g',  cat:'meat'},
+          {name:'Dried Italian herbs, garlic powder',qty:'to taste', cat:'other'},
+        ],
+        rest: [
+          {name:'Large pita flatbread',              qty:'60g',   cat:'other'},
+          {name:'Crushed tomatoes',                  qty:'80g',   cat:'other'},
+          {name:'Baby spinach',                      qty:'30g',   cat:'veg'},
+          {name:'Mozzarella + cheddar, shredded',   qty:'60g',   cat:'dairy'},
+          {name:'Capsicum, sliced',                  qty:'60g',   cat:'veg'},
+          {name:'Brown onion, sliced',               qty:'40g',   cat:'veg'},
+          {name:'Sliced ham',                        qty:'80g',   cat:'meat'},
+          {name:'Chicken breast, cooked and diced',  qty:'160g',  cat:'meat'},
+          {name:'Dried Italian herbs, garlic powder',qty:'to taste', cat:'other'},
+        ]
+      }
+    }
+  },
+
+  kimchiRice: {
+    label:'Dinner', name:'Kimchi Fried Rice',
+    method:'High heat wok, add oil and garlic 30 sec. Add protein, cook through. Add kimchi and gochujang, stir-fry 2 min. Push aside, scramble eggs. Add rice and soy, toss everything together. Finish with sesame oil and spring onions.',
+    ingredients: {
+      jen: {
+        train: [
+          {name:'Cooked rice (day-old preferred)',           qty:'180g', cat:'other'},
+          {name:'Protein of week (chicken/beef/tofu)',       qty:'180g', cat:'meat'},
+          {name:'Kimchi, chopped',                           qty:'100g', cat:'other'},
+          {name:'Eggs',                                      qty:'2 whole', cat:'dairy'},
+          {name:'Soy sauce',                                 qty:'15ml', cat:'other'},
+          {name:'Sesame oil',                                qty:'10ml', cat:'other'},
+          {name:'Spring onions, sliced',                     qty:'20g',  cat:'veg'},
+          {name:'Garlic cloves, minced',                     qty:'2 cloves', cat:'veg'},
+          {name:'Gochujang',                                 qty:'15g',  cat:'other'},
+          {name:'Neutral oil',                               qty:'10ml', cat:'other'},
+        ],
+        rest: [
+          {name:'Cooked rice (day-old preferred)',           qty:'180g', cat:'other'},
+          {name:'Protein of week (chicken/beef/tofu)',       qty:'180g', cat:'meat'},
+          {name:'Kimchi, chopped',                           qty:'100g', cat:'other'},
+          {name:'Eggs',                                      qty:'2 whole', cat:'dairy'},
+          {name:'Soy sauce',                                 qty:'15ml', cat:'other'},
+          {name:'Sesame oil',                                qty:'10ml', cat:'other'},
+          {name:'Spring onions, sliced',                     qty:'20g',  cat:'veg'},
+          {name:'Garlic cloves, minced',                     qty:'2 cloves', cat:'veg'},
+          {name:'Gochujang',                                 qty:'15g',  cat:'other'},
+          {name:'Neutral oil',                               qty:'10ml', cat:'other'},
+        ]
+      },
+      shehan: {
+        train: [
+          {name:'Cooked rice (day-old preferred)',           qty:'280g', cat:'other'},
+          {name:'Protein of week (chicken/beef/tofu)',       qty:'250g', cat:'meat'},
+          {name:'Kimchi, chopped',                           qty:'100g', cat:'other'},
+          {name:'Eggs',                                      qty:'2 whole', cat:'dairy'},
+          {name:'Soy sauce',                                 qty:'15ml', cat:'other'},
+          {name:'Sesame oil',                                qty:'10ml', cat:'other'},
+          {name:'Spring onions, sliced',                     qty:'20g',  cat:'veg'},
+          {name:'Garlic cloves, minced',                     qty:'2 cloves', cat:'veg'},
+          {name:'Gochujang',                                 qty:'15g',  cat:'other'},
+          {name:'Neutral oil',                               qty:'10ml', cat:'other'},
+        ],
+        rest: [
+          {name:'Cooked rice (day-old preferred)',           qty:'170g', cat:'other'},
+          {name:'Protein of week (chicken/beef/tofu)',       qty:'250g', cat:'meat'},
+          {name:'Kimchi, chopped',                           qty:'100g', cat:'other'},
+          {name:'Eggs',                                      qty:'2 whole', cat:'dairy'},
+          {name:'Soy sauce',                                 qty:'15ml', cat:'other'},
+          {name:'Sesame oil',                                qty:'10ml', cat:'other'},
+          {name:'Spring onions, sliced',                     qty:'20g',  cat:'veg'},
+          {name:'Garlic cloves, minced',                     qty:'2 cloves', cat:'veg'},
+          {name:'Gochujang',                                 qty:'15g',  cat:'other'},
+          {name:'Neutral oil',                               qty:'10ml', cat:'other'},
+        ]
+      }
+    }
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// WEEK PLANS
+// Training days: Mon, Tue, Thu, Sat for both persons
+// ═══════════════════════════════════════════════════════════════
+const DAYS_OF_WEEK = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+const WEEK_PLANS = {
+  1: {
+    Mon: {b:'overnightOats', l:'sushiBowl',          d:'chickenHSP',      training:true},
+    Tue: {b:'overnightOats', l:'sushiBowl',          d:'sweetPotatoBowl', training:true},
+    Wed: {b:'overnightOats', l:'sushiBowl',          d:'chickenHSP',      training:false},
+    Thu: {b:'overnightOats', l:'sushiBowl',          d:'sweetPotatoBowl', training:true},
+    Fri: {b:'overnightOats', l:'sushiBowl',          d:'chickenHSP',      training:false},
+    Sat: {b:'overnightOats', l:'sushiBowl',          d:'sweetPotatoBowl', training:true},
+    Sun: {free:true, training:false},
+  },
+  2: {
+    Mon: {b:'englishMuffin', l:'chickenWrap',         d:'padSeeEw',        training:true},
+    Tue: {b:'englishMuffin', l:'chickenWrap',         d:'beefBurger',      training:true},
+    Wed: {b:'englishMuffin', l:'chickenWrap',         d:'padSeeEw',        training:false},
+    Thu: {b:'englishMuffin', l:'chickenWrap',         d:'beefBurger',      training:true},
+    Fri: {b:'englishMuffin', l:'chickenWrap',         d:'padSeeEw',        training:false},
+    Sat: {b:'englishMuffin', l:'chickenWrap',         d:'beefBurger',      training:true},
+    Sun: {free:true, training:false},
+  },
+  3: {
+    Mon: {b:'overnightOats', l:'phillyCheesePasta',  d:'pizza',           training:true},
+    Tue: {b:'overnightOats', l:'phillyCheesePasta',  d:'kimchiRice',      training:true},
+    Wed: {b:'overnightOats', l:'phillyCheesePasta',  d:'pizza',           training:false},
+    Thu: {b:'overnightOats', l:'phillyCheesePasta',  d:'kimchiRice',      training:true},
+    Fri: {b:'overnightOats', l:'phillyCheesePasta',  d:'pizza',           training:false},
+    Sat: {b:'overnightOats', l:'phillyCheesePasta',  d:'kimchiRice',      training:true},
+    Sun: {free:true, training:false},
+  },
+};
+
+const PERSON_META = {
+  jen:    {name:'Jen',    sub:'80 kg · body recomp · almond milk', trainKcal:1950, restKcal:1750, trainP:155, restP:145, color:'jen'},
+  shehan: {name:'Shehan', sub:'training 2,300 kcal · 230g protein', trainKcal:2300, restKcal:2000, trainP:230, restP:210, color:'shehan'},
+};
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+let currentPerson = 'jen';
+let currentWeek   = 1;
+let currentDay    = 'Mon';
+
+function getMacros(person, mealKey, isTraining) {
+  const slot = isTraining ? 'train' : 'rest';
+  return MACROS[person][mealKey] ? MACROS[person][mealKey][slot] : {kcal:0,p:0,c:0,f:0};
+}
+
+// Get ingredients for a given person + meal + training flag
+function getIngredients(person, mealKey, isTraining) {
+  const m = MEALS[mealKey];
+  if (!m || !m.ingredients[person]) return [];
+  const slot = isTraining ? 'train' : 'rest';
+  return m.ingredients[person][slot] || [];
+}
+
+function kcalClass(p){ return p==='jen'?'kcal-jen':'kcal-shehan'; }
+function dtClass(p)  { return p==='jen'?'dt-jen':'dt-shehan'; }
+
+// ═══════════════════════════════════════════════════════════════
+// PERSON TOGGLE
+// ═══════════════════════════════════════════════════════════════
+function setPerson(p) {
+  currentPerson = p;
+  document.getElementById('togJen').className    = 'ptog'+(p==='jen'?' active-jen':'');
+  document.getElementById('togShehan').className = 'ptog'+(p==='shehan'?' active-shehan':'');
+  renderPersonBanner();
+  renderDay();
+  if (document.getElementById('screen-macros').classList.contains('active')) renderMacros();
+}
+
+function renderPersonBanner() {
+  const m   = PERSON_META[currentPerson];
+  const isT = (WEEK_PLANS[currentWeek][currentDay] && !WEEK_PLANS[currentWeek][currentDay].free)
+    ? WEEK_PLANS[currentWeek][currentDay].training : false;
+  const kcal = isT ? m.trainKcal : m.restKcal;
+  document.getElementById('personBanner').innerHTML = `
+    <div class="person-banner pb-${currentPerson}">
+      <div><div class="pb-name">${m.name}</div><div class="pb-sub">${m.sub}</div></div>
+      <div class="pb-target"><div class="pb-kcal">${kcal.toLocaleString()}</div><div class="pb-kcal-lbl">daily kcal target</div></div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PLAN SCREEN
+// ═══════════════════════════════════════════════════════════════
+function showWeek(w, btn) {
+  currentWeek = w; currentDay = 'Mon';
+  document.querySelectorAll('.wtab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderDayNav(); renderPersonBanner(); renderDay();
+}
+
+function renderDayNav() {
+  const scroll = document.getElementById('dayScroll');
+  scroll.innerHTML = '';
+  DAYS_OF_WEEK.forEach(d => {
+    const plan = WEEK_PLANS[currentWeek][d];
+    const btn  = document.createElement('button');
+    btn.className = 'daytab'+(d===currentDay?' active':'');
+    btn.textContent = d+(plan.training?' 🏋️':plan.free?' ☀️':'');
+    btn.onclick = () => {
+      currentDay = d;
+      document.querySelectorAll('.daytab').forEach(t=>t.classList.remove('active'));
+      btn.classList.add('active');
+      renderPersonBanner(); renderDay();
+    };
+    scroll.appendChild(btn);
+  });
+}
+
+function buildMealCard(mealKey, isTraining) {
+  const m   = MEALS[mealKey];
+  if (!m) return '';
+  const mac  = getMacros(currentPerson, mealKey, isTraining);
+  const ings = getIngredients(currentPerson, mealKey, isTraining);
+  const rows = ings.map(i=>`<tr class="ing-row"><td class="ing-name">${i.name}</td><td class="ing-qty">${i.qty}</td></tr>`).join('');
+  return `
+    <div class="meal-card">
+      <div class="meal-header">
+        <div><div class="meal-label">${m.label}</div><div class="meal-name">${m.name}</div></div>
+        <div class="macro-stack">
+          <div><span class="kcal-big ${kcalClass(currentPerson)}">${mac.kcal}</span> <span class="kcal-unit">kcal</span></div>
+          <div class="macro-pills">
+            <span class="pill pill-p">P ${mac.p}g</span>
+            <span class="pill pill-c">C ${mac.c}g</span>
+            <span class="pill pill-f">F ${mac.f}g</span>
+          </div>
+        </div>
+      </div>
+      <table class="ing-table">
+        <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${m.method?`<div class="method-box"><div class="method-label">Method</div>${m.method}</div>`:''}
+    </div>`;
+}
+
+function renderDay() {
+  const plan    = WEEK_PLANS[currentWeek][currentDay];
+  const content = document.getElementById('dayContent');
+  if (plan.free) {
+    const tgt = SUNDAY_TARGETS[currentPerson].rest;
+    content.innerHTML = `
+      <div class="sunday-card">
+        <div class="sunday-icon">☀️</div>
+        <div class="sunday-title">FREE DAY</div>
+        <div class="sunday-sub">Sunday is your own meal — eat whatever you enjoy within your daily macro targets.</div>
+        <div class="sunday-targets">
+          <div class="st-cell"><div class="st-val">${tgt.kcal.toLocaleString()}</div><div class="st-label">Max kcal</div></div>
+          <div class="st-cell"><div class="st-val">${tgt.p}g</div><div class="st-label">Min protein</div></div>
+          <div class="st-cell"><div class="st-val">${tgt.c}g</div><div class="st-label">Carbs</div></div>
+          <div class="st-cell"><div class="st-val">${tgt.f}g</div><div class="st-label">Fats</div></div>
+        </div>
+      </div>`;
+    return;
+  }
+  const isT  = plan.training;
+  const bm   = getMacros(currentPerson, plan.b, isT);
+  const sm   = getMacros(currentPerson, 'shake', isT);
+  const lm   = getMacros(currentPerson, plan.l, isT);
+  const dm   = getMacros(currentPerson, plan.d, isT);
+  const tKcal= bm.kcal+sm.kcal+lm.kcal+dm.kcal;
+  const tP   = bm.p+sm.p+lm.p+dm.p;
+  const tC   = bm.c+sm.c+lm.c+dm.c;
+  const tF   = bm.f+sm.f+lm.f+dm.f;
+  content.innerHTML = `
+    <div class="daily-totals ${dtClass(currentPerson)}">
+      <div class="dt-label">Daily totals · ${isT?'🏋️ Training day':'Rest day'}</div>
+      <div class="dt-grid">
+        <div class="dt-cell"><div class="dt-val">${tKcal}</div><div class="dt-unit">kcal</div></div>
+        <div class="dt-cell"><div class="dt-val">${tP}g</div><div class="dt-unit">protein</div></div>
+        <div class="dt-cell"><div class="dt-val">${tC}g</div><div class="dt-unit">carbs</div></div>
+        <div class="dt-cell"><div class="dt-val">${tF}g</div><div class="dt-unit">fats</div></div>
+      </div>
+    </div>
+    ${buildMealCard(plan.b, isT)}
+    ${buildMealCard('shake', isT)}
+    ${buildMealCard(plan.l, isT)}
+    ${buildMealCard(plan.d, isT)}`;
+}
+
+// ── MACROS SCREEN ──
+function renderMacros() {
+  const jenMeta = PERSON_META.jen;
+  const shMeta  = PERSON_META.shehan;
+  const weekRows = [
+    {label:'Week A', meals:'Overnight Oats · Sushi Bowl · HSP + Sweet Potato Bowl',
+      jen:{train:'~1,900 kcal · ~168g P'},shehan:{train:'~2,270 kcal · ~226g P'}},
+    {label:'Week B', meals:'Egg Muffin · Chicken Wrap · Pad See Ew + Beef Burger',
+      jen:{train:'~1,895 kcal · ~159g P'},shehan:{train:'~2,280 kcal · ~224g P'}},
+    {label:'Week C', meals:'Overnight Oats · Philly Cheese Pasta · Pizza + Kimchi Rice',
+      jen:{train:'~1,870 kcal · ~167g P'},shehan:{train:'~2,260 kcal · ~218g P'}},
+  ];
+  document.getElementById('macrosContent').innerHTML = `
+    <div class="person-section-title jen-title">Jen</div>
+    <div class="macro-overview-grid">
+      <div class="mo-card"><div class="mo-label">Training days</div><div class="mo-val mo-val-jen">${jenMeta.trainKcal.toLocaleString()}<span class="mo-unit"> kcal</span></div><div class="mo-sub">Mon, Tue, Thu, Sat</div></div>
+      <div class="mo-card"><div class="mo-label">Rest days</div><div class="mo-val mo-val-jen">${jenMeta.restKcal.toLocaleString()}<span class="mo-unit"> kcal</span></div><div class="mo-sub">Wed, Fri, Sun</div></div>
+      <div class="mo-card"><div class="mo-label">Protein target</div><div class="mo-val mo-val-jen">155<span class="mo-unit">+ g</span></div><div class="mo-sub">Every day</div></div>
+      <div class="mo-card"><div class="mo-label">Milk</div><div class="mo-val mo-val-jen" style="font-size:18px;">Almond</div><div class="mo-sub">Unsweetened · all recipes</div></div>
+    </div>
+    <div class="rules-card">
+      <div class="rules-title">Jen — daily rules</div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Protein 155–170g</strong> — hit this every day, training or rest.</span></div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Almond milk throughout</strong> — 120ml in oats, 300ml in shake. Protein powder increased to 40g to compensate.</span></div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Shake: banana on training days only</strong> — rest days no banana, saves ~45 kcal / 11g carbs.</span></div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Sunday free</strong> — eat within 1,750 kcal, hit 145g protein minimum.</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="person-section-title shehan-title">Shehan</div>
+    <div class="macro-overview-grid">
+      <div class="mo-card"><div class="mo-label">Training days</div><div class="mo-val mo-val-shehan">${shMeta.trainKcal.toLocaleString()}<span class="mo-unit"> kcal</span></div><div class="mo-sub">Mon, Tue, Thu, Sat</div></div>
+      <div class="mo-card"><div class="mo-label">Rest days</div><div class="mo-val mo-val-shehan">${shMeta.restKcal.toLocaleString()}<span class="mo-unit"> kcal</span></div><div class="mo-sub">Wed, Fri, Sun</div></div>
+      <div class="mo-card"><div class="mo-label">Protein target</div><div class="mo-val mo-val-shehan">230<span class="mo-unit">+ g</span></div><div class="mo-sub">Training days</div></div>
+      <div class="mo-card"><div class="mo-label">Weekly avg</div><div class="mo-val mo-val-shehan">~2,270<span class="mo-unit"> kcal</span></div><div class="mo-sub">Across all 3 weeks</div></div>
+    </div>
+    <div class="rules-card">
+      <div class="rules-title">Shehan — daily rules</div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Training day: 2,300 kcal / 230g P</strong> — carb-heavy ingredients at full portion.</span></div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Rest days: reduce carbs</strong> — cut rice, potato, pasta, noodles to rest-day qty shown in each meal.</span></div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Protein portions increase</strong> — chicken +70–80g, beef mince +70g vs Jen's portions to hit 230g P.</span></div>
+      <div class="rule-row"><span class="rule-dot">·</span><span><strong>Sunday free</strong> — eat within 2,000 kcal, hit 210g protein minimum.</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="screen-title" style="font-size:22px;margin-bottom:10px;">ROTATION OVERVIEW</div>
+    ${weekRows.map(wr=>`
+      <div class="ws-row">
+        <div class="ws-week">${wr.label}</div>
+        <div class="ws-meals">${wr.meals}</div>
+        <div class="ws-macros-row">
+          <div class="ws-person-block"><div class="ws-person-lbl jen-lbl">Jen</div><div class="ws-person-vals">${wr.jen.train}</div></div>
+          <div class="ws-person-block"><div class="ws-person-lbl shehan-lbl">Shehan</div><div class="ws-person-vals">${wr.shehan.train}</div></div>
+        </div>
+      </div>`).join('')}`;
+}
+
+// ── SHOPPING LIST ──
+const WEEK_DAY_TRAINING = {Mon:true,Tue:true,Wed:false,Thu:true,Fri:false,Sat:true};
+
+function parseQty(qtyStr) {
+  const s = qtyStr.trim();
+  const m = s.match(/^(\d+(?:\.\d+)?)\s*(g|ml|kg|l)\b/i);
+  if (m) return {value:parseFloat(m[1]),unit:m[2].toLowerCase(),note:null};
+  return {value:null,unit:null,note:s};
+}
+function normaliseUnit(value,unit){
+  if(unit==='kg') return {value:value*1000,unit:'g'};
+  if(unit==='l')  return {value:value*1000,unit:'ml'};
+  return {value,unit};
+}
+function formatQty(value,unit){
+  if(unit==='g')  return value>=1000?(value/1000).toFixed(1).replace(/\.0$/,'')+'kg':Math.round(value)+'g';
+  if(unit==='ml') return value>=1000?(value/1000).toFixed(1).replace(/\.0$/,'')+'L':Math.round(value)+'ml';
+  return value+(unit||'');
+}
+
+function buildShoppingList(weekNum) {
+  const weekDays = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+  const plan = WEEK_PLANS[weekNum];
+  const persons = ['jen','shehan'];
+  const agg = {};
+
+  function addIng(ing) {
+    const normName = ing.name.toLowerCase().trim();
+    const parsed = parseQty(ing.qty);
+    const norm = parsed.value!==null ? normaliseUnit(parsed.value,parsed.unit) : null;
+    if (!agg[normName]) {
+      agg[normName] = {displayName:ing.name, cat:ing.cat, value:norm?norm.value:null, unit:norm?norm.unit:null, rawNote:parsed.note};
+    } else if (norm && agg[normName].value!==null) {
+      agg[normName].value += norm.value;
+    }
+  }
+
+  weekDays.forEach(day => {
+    const d = plan[day];
+    if (!d||d.free) return;
+    const isT = WEEK_DAY_TRAINING[day];
+    const mSlots = ['b','l','d'].map(s=>d[s]).filter(Boolean);
+    mSlots.push('shake');
+    mSlots.forEach(mealKey => {
+      persons.forEach(person => {
+        getIngredients(person,mealKey,isT).forEach(addIng);
+      });
+    });
+  });
+
+  const items = Object.values(agg).map(item=>({
+    name:item.displayName,
+    qty:item.value!==null?formatQty(item.value,item.unit):(item.rawNote||''),
+    cat:item.cat
+  }));
+  const catOrder = {veg:0,meat:1,dairy:2,other:3};
+  items.sort((a,b)=>{const cd=catOrder[a.cat]-catOrder[b.cat];return cd!==0?cd:a.name.localeCompare(b.name);});
+  return items;
+}
+
+function shopKey(w,name){return 'shopTick_'+w+'_'+name.toLowerCase().replace(/\s+/g,'_');}
+function isTicked(w,name){try{return localStorage.getItem(shopKey(w,name))==='1';}catch(e){return false;}}
+function setTicked(w,name,val){try{val?localStorage.setItem(shopKey(w,name),'1'):localStorage.removeItem(shopKey(w,name));}catch(e){}}
+function clearWeekTicks(w){try{Object.keys(localStorage).filter(k=>k.startsWith('shopTick_'+w+'_')).forEach(k=>localStorage.removeItem(k));}catch(e){}}
+
+let currentShopWeek = 1;
+const CAT_META = {
+  veg:  {label:'Vegetables & Fruit',icon:'🥦'},
+  meat: {label:'Meat & Protein',    icon:'🥩'},
+  dairy:{label:'Dairy & Eggs',      icon:'🥛'},
+  other:{label:'Pantry & Other',    icon:'🛒'},
+};
+
+function showShopWeek(w,btn){
+  currentShopWeek=w;
+  document.querySelectorAll('.shop-wtab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderShopList();
+}
+function clearShopWeek(){clearWeekTicks(currentShopWeek);renderShopList();}
+function toggleItem(w,name){setTicked(w,name,!isTicked(w,name));renderShopList();}
+
+function renderShopList(){
+  const items=buildShoppingList(currentShopWeek);
+  const total=items.length;
+  const ticked=items.filter(i=>isTicked(currentShopWeek,i.name)).length;
+  const pct=total>0?Math.round((ticked/total)*100):0;
+  document.getElementById('shopProgressCount').textContent=ticked+' / '+total;
+  document.getElementById('shopProgressFill').style.width=pct+'%';
+  const groups={veg:[],meat:[],dairy:[],other:[]};
+  items.forEach(item=>groups[item.cat].push(item));
+  let html='';
+  ['veg','meat','dairy','other'].forEach(cat=>{
+    const catItems=groups[cat];
+    if(!catItems.length) return;
+    const meta=CAT_META[cat];
+    const catTicked=catItems.filter(i=>isTicked(currentShopWeek,i.name)).length;
+    html+=`<div class="shop-category">
+      <div class="shop-category-header">
+        <span class="shop-category-icon">${meta.icon}</span>
+        <span class="shop-category-title">${meta.label}</span>
+        <span class="shop-category-count">${catTicked}/${catItems.length}</span>
+      </div>`;
+    catItems.forEach(item=>{
+      const t=isTicked(currentShopWeek,item.name);
+      html+=`<div class="shop-item${t?' ticked':''}" onclick="toggleItem(${currentShopWeek},'${item.name.replace(/'/g,"\\'")}')">
+        <div class="shop-checkbox"><span class="shop-check-icon">✓</span></div>
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-qty">${item.qty}</div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('shopContent').innerHTML=html||'<div class="shop-empty">No items found.</div>';
+}
+
+// ── SCREEN SWITCHING ──
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='macros') renderMacros();
+  if(name==='shop')   renderShopList();
+  window.scrollTo(0,0);
+}
+
+// Init
+renderDayNav();
+renderPersonBanner();
+renderDay();
+renderShopList();
+</script>
+</body>
+</html>
